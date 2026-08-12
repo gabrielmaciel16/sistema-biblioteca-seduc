@@ -90,7 +90,7 @@ def cadastro():
 
 
 
-#def verificacao_pass(vf):
+#def verificacao_pass(vf)a:
 #def verificacao_user(vu)
 #def email_amd_valido(email):
 
