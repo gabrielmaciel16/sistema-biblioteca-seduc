@@ -1,197 +1,116 @@
-SEMPRE TRABALHAR COM BRANCHS
-•Main:versão funcional do projeto, versão final do projeto
-•Branch: versão paralela que não afeta o projeto principal 
+# Raiz — Sistema de Biblioteca Escolar (Django)
 
+Primeira estrutura Django para o projeto de gerenciamento de livros e empréstimos voltado inicialmente a escolas.
 
-•Como funcionará na prática o site?
+## Stack
 
-HTML básico
-→ páginas, títulos, formulários, botões, tabelas
+- Python
+- Django 5.2
+- MySQL 8.0.11+ **ou** MariaDB 10.5+
+- HTML + CSS + JavaScript
+- Git/GitHub
 
- CSS básico
-→ cores, tamanho, Flexbox, Grid, responsividade
+## Arquitetura
 
-JavaScript básico
-→ variáveis, funções, eventos, DOM
+```text
+HTML/CSS/JS -> Django -> ORM -> MySQL
+```
 
- JavaScript + APIs
-→ fetch(), JSON, requisições HTTP
+O navegador nunca acessa o banco diretamente.
 
-Flask
-→ criar a API do sistema
+## Estrutura
 
- MySQL
-→ armazenar usuários, livros, empréstimos etc.
+```text
+config/          configurações Django
+usuarios/        login, usuários e perfil de aluno
+escolas/         instituições
+livros/          catálogo
+emprestimos/     empréstimos/devoluções e regras de negócio
+templates/       HTML
+static/          CSS, JS e imagens
+database/        scripts locais e dumps antigos de referência
+docs/            documentação
+```
 
+## 1. Pré-requisitos
 
+- Python compatível com Django 5.2.
+- MySQL 8.0.11+ ou MariaDB 10.5+.
+- Git.
 
+> Atenção: os dumps antigos enviados indicam MariaDB 10.4.32, que deve ser atualizado para usar Django 5.2.
 
+## 2. Ambiente virtual (Windows PowerShell)
 
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
-•Guia de aprendizado
-Aprender HTML básico
-       ↓
-Criar primeira tela
-       ↓
-Aprender CSS necessário
-       ↓
-Melhorar a tela
-       ↓
-Aprender JS necessário
-       ↓
-Fazer a tela funcionar
-       ↓
-Aprender Flask
-       ↓
-Conectar ao banco
+## 3. Variáveis de ambiente
 
+```powershell
+Copy-Item .env.example .env
+```
 
+Edite `.env`. Nunca faça commit desse arquivo.
 
-•Requisições do Front-End e Back-End
+## 4. Banco
 
-Usuário solicita livro
-        ↓
-Frontend envia solicitação
-        ↓
-Backend recebe
-        ↓
-Backend verifica banco
-        ↓
-Banco informa se disponível
-        ↓
-Backend responde
-        ↓
-Frontend mostra resultado
+Use `database/create_database_dev.sql` para criar `raiz_db` e o usuário local do projeto. Troque a senha do exemplo.
 
+## 5. Migrations
 
+Como este scaffold começa com um usuário customizado, configure tudo **antes do primeiro `migrate`**. Depois rode:
 
+```powershell
+python manage.py makemigrations
+python manage.py migrate
+```
 
-•Funcionamento da Hospedagem do site
+## 6. Superusuário
 
-Nosso computador 
-       ↓
-GitHub
-       ↓
-Servidor
-       ↓
-Site acessível pela internet
+```powershell
+python manage.py createsuperuser
+```
 
+O login usa **e-mail + senha**.
 
+## 7. Testes
 
-•Guia de como fazer,alterar e enviar alterações 
+```powershell
+python manage.py test
+```
 
-   [GitHub main]
-1-criar umabranch
-2-(Programar/testar)
-3-commit
-4-push
-5-Pull Request
-6-outra pessoa revisa
-7-MERGE
-8-main
+## 8. Executar localmente
 
-•Proteção da Main através de configuração do Github 
-Pessoa
-   ↓
-Branch
-   ↓
-Pull Request
-   ↓
-Review
-   ↓
-Testes
-   ↓
-MERGE
+```powershell
+python manage.py runserver
+```
 
+Abra `http://127.0.0.1:8000/entrar/`.
 
+## Autenticação
 
-•Padronização de Commits 
-Ex:
-feat: adiciona cadastro de livros
+- Senhas são tratadas pelo Django Auth; não são comparadas nem armazenadas manualmente.
+- Cadastro público cria somente contas de aluno.
+- Administradores/funcionários devem ser promovidos por um superusuário no `/admin/`.
+- O modelo de usuário é definido em `usuarios.User` e usa o e-mail como identificador.
 
-fix: corrige erro na busca de livros
+## Banco antigo
 
-docs: atualiza documentação da API
+Os SQL enviados foram preservados em `database/legacy/` para consulta. Eles não devem ser tratados como o esquema oficial do Django daqui em diante. O esquema oficial será `models.py` + migrations.
 
-refactor: reorganiza sistema de usuários
+## Antes de produção
 
-test: adiciona testes para login
+- `DEBUG=False`
+- `SECRET_KEY` forte e privada
+- HTTPS
+- banco não exposto diretamente à internet
+- backups
+- permissões por escola
+- executar `python manage.py check --deploy`
+- usar servidor WSGI/ASGI de produção em vez de `runserver`
 
-
-
-
-
-
-
-
-•Funcionalidades básicas do GitHub para mexer no projeto
-•Code:Código do projeto                         
-•Issues Tarefas, bugs e problemas                 
-•Pull Requests:Revisar código antes de entrar no projeto 
-•Projects:Quadro geral do desenvolvimento           
-•Actions:Automatizar testes futuramente 
-•Wiki/Docs:Documentação, se necessário               
-•Settings:Configurações e permissões             
-
-
-
-
-
-
-
-Combinação Front-End
-•Css:aparência 
-•Html:estrutura do site
-•Javascript:para interações e
-Requisições de comunicação entre o Front-End e a API 
-
-
-•Python
-Python recebe a requisição do javascript e depois consulta o banco de dados MySQL que devolve os livros
-
-Python não é um framework e precisa de um oara comunicação web
-
-Flask e Django(ferramentas para usar Python na criação de aplicações web/API)
-
-•Django:é mais completo e com mais recursos 
-•Flask: é mais fácil e deixa mais evidente a intercalação entre as linguagens
-
-
-
-
-
-
-
-•Versões futuras
-
-•Fase 1 -MVP/Beta
-Login
-   ↓
-Cadastro de livros
-   ↓
-Pesquisa de livros
-   ↓
-Empréstimo
-   ↓
-Devolução
-
-•Fase 2
-Painel administrativo
-Estatísticas
-Histórico
-Filtros
-Controle de estoque
-
-•Fase 3
-Múltiplas escolas
-Perfis de usuários
-Relatórios
-Notificações
-
-•Fase 4
-Segurança avançada
-Escalabilidade
-Cloud
-CI/CD
-Monitoramento
-Aplicativo mobile
+Leia `docs/ARQUITETURA.md` e `docs/MIGRACAO_DO_REPOSITORIO_ATUAL.md` antes de integrar este scaffold à `main`.

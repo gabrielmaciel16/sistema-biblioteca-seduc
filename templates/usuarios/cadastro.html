@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Cadastrar | Raiz{% endblock %}
+{% block content %}
+<section class="auth-card wide">
+    <h1>Criar conta de aluno</h1>
+    <p class="muted">Contas administrativas devem ser criadas por um administrador, não por cadastro público.</p>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<small>{{ field.help_text|safe }}</small>{% endif %}
+            {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        {% endfor %}
+        <button type="submit" class="primary-button">Cadastrar</button>
+    </form>
+    <p class="auth-help"><a href="{% url 'usuarios:login' %}">Voltar ao login</a></p>
+</section>
+{% endblock %}

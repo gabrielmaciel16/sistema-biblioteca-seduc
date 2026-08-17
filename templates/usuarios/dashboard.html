@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Painel | Raiz{% endblock %}
+{% block content %}
+<h1>Olá, {{ request.user.first_name|default:request.user.email }}</h1>
+<p>Você está autenticado como <strong>{{ request.user.get_tipo_display }}</strong>.</p>
+{% if request.user.escola %}<p>Escola: {{ request.user.escola }}</p>{% endif %}
+<div class="cards">
+    <a class="menu-card" href="{% url 'livros:lista' %}">Consultar livros</a>
+    <a class="menu-card" href="{% url 'emprestimos:lista' %}">Consultar empréstimos</a>
+</div>
+{% endblock %}

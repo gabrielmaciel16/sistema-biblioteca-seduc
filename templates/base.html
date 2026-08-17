@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Raiz{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{% url 'usuarios:dashboard' %}">Raiz</a>
+        {% if request.user.is_authenticated %}
+            <nav>
+                <a href="{% url 'livros:lista' %}">Livros</a>
+                <a href="{% url 'emprestimos:lista' %}">Empréstimos</a>
+                <form method="post" action="{% url 'usuarios:logout' %}" class="inline-form">
+                    {% csrf_token %}
+                    <button type="submit" class="link-button">Sair</button>
+                </form>
+            </nav>
+        {% endif %}
+    </header>
+
+    <main class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

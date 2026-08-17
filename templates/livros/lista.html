@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Livros | Raiz{% endblock %}
+{% block content %}
+<h1>Catálogo de livros</h1>
+<form method="get" class="search-form">
+    <input type="search" name="q" value="{{ termo }}" placeholder="Pesquisar por título ou autor">
+    <button class="primary-button compact" type="submit">Pesquisar</button>
+</form>
+<table>
+    <thead><tr><th>Título</th><th>Autor</th><th>Categoria</th><th>Disponíveis</th><th>Localização</th></tr></thead>
+    <tbody>
+    {% for livro in livros %}
+        <tr><td>{{ livro.titulo }}</td><td>{{ livro.autor }}</td><td>{{ livro.categoria|default:"—" }}</td><td>{{ livro.quantidade_disponivel }}/{{ livro.quantidade_total }}</td><td>{{ livro.localizacao|default:"—" }}</td></tr>
+    {% empty %}
+        <tr><td colspan="5">Nenhum livro encontrado.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
