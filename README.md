@@ -9,13 +9,13 @@ Usamos Python, Django, HTML, CSS e **um banco SQLite** local. O Django cria e ma
 ```text
 manage.py                 comandos do Django
 requirements.txt          dependências Python
-config/settings.py        configuração e banco SQLite
+config/settings.py        configuração local e banco SQLite
 config/urls.py            entrada das URLs e login
 biblioteca/models.py      tabelas Aluno, Livro e Emprestimo
 biblioteca/forms.py       formulários e validações
 biblioteca/views.py       páginas e regras de empréstimo/devolução
 biblioteca/urls.py        caminhos das páginas
-biblioteca/admin.py       administração do Django
+biblioteca/admin.py       reserva padrão do Django; contas em /admin/
 biblioteca/migrations/    versão inicial das tabelas
 templates/                páginas HTML
 static/css/style.css      aparência das páginas
@@ -79,6 +79,16 @@ Um aluno ou livro com empréstimos registrados não pode ser excluído, pois iss
 
 Experimente criar um aluno e um livro de teste. Abra cada URL e encontre a função e o template correspondentes. Depois execute os testes em `biblioteca/tests.py`.
 
+### Recursos do Django que aparecem no código
+
+- `@staff_member_required`: permite que somente usuários marcados como **Membro da equipe** acessem as páginas. É um recurso pronto do Django.
+- `transaction.atomic()`: mantém as duas alterações de um empréstimo ou devolução juntas. Se uma falhar, nenhuma fica salva pela metade.
+- `F("quantidade_disponivel")`: faz a conta do estoque diretamente no banco. Com a condição `quantidade_disponivel__gt=0`, dois pedidos não retiram o mesmo último exemplar.
+- `on_delete=models.PROTECT`: impede a exclusão de aluno ou livro que aparece no histórico.
+- `migrations/`, `__init__.py`, `asgi.py` e `wsgi.py`: são arquivos normais de um projeto Django. Para começar, basta estudar os arquivos da ordem acima; não é necessário editá-los.
+
+O Django Admin em `/admin/` serve para criar contas da equipe. O catálogo e os empréstimos são gerenciados nas páginas do sistema, evitando dois lugares com regras diferentes de estoque.
+
 ## Banco antigo e futura migração
 
 Esta branch cria **um esquema novo** com SQLite e o usuário padrão do Django. As migrations antigas (`usuarios`, `livros`, `emprestimos`, `escolas`) e os scripts SQL dos três bancos anteriores não são compatíveis com a nova migration inicial. **Não execute esta versão sobre um banco antigo com dados esperando que os dados sejam convertidos automaticamente.** Os arquivos antigos permanecem no histórico da branch `main` e do Git; a documentação anterior indicava que os dumps fornecidos continham somente estrutura, mas confirme isso em qualquer instalação real antes de migrar. Faça backup, mapeie identificadores e relações, importe os dados em uma cópia e confira quantidades e empréstimos antes de trocar a instalação em uso.
@@ -87,4 +97,4 @@ Para migrar **futuramente** para MySQL, primeiro instale um servidor compatível
 
 ## Limites desta versão
 
-Ela foi feita para estudo e uso local inicial. Para colocar na internet, configure uma chave secreta privada (`DJANGO_SECRET_KEY`), `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, HTTPS, backups e um servidor de aplicação adequado. Não use `runserver` como servidor público. Crie usuários de equipe pelo admin e marque **Membro da equipe** (`is_staff`); não existe cadastro público de administradores.
+Ela foi feita para estudo e uso local inicial. Para colocar na internet, altere `SECRET_KEY`, `DEBUG` e `ALLOWED_HOSTS` em `config/settings.py`, configure HTTPS, backups e um servidor de aplicação adequado. Não use `runserver` como servidor público. Crie usuários de equipe pelo admin e marque **Membro da equipe** (`is_staff`); não existe cadastro público de administradores.
