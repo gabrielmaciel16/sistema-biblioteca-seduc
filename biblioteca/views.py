@@ -1,11 +1,8 @@
-from functools import wraps
-
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 from django.db.models import F, ProtectedError
-from django.http import HttpResponseNotAllowed
+from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -13,17 +10,7 @@ from .forms import AlunoForm, EmprestimoForm, LivroForm
 from .models import Aluno, Emprestimo, Livro
 
 
-def equipe_required(view):
-    @login_required
-    @wraps(view)
-    def verificar(request, *args, **kwargs):
-        if not request.user.is_staff:
-            raise PermissionDenied("Apenas a equipe da biblioteca pode acessar o sistema.")
-        return view(request, *args, **kwargs)
-    return verificar
-
-
-@equipe_required
+@staff_member_required(login_url="login")
 def inicio(request):
     return render(request, "inicio.html", {
         "alunos": Aluno.objects.count(),
@@ -32,12 +19,12 @@ def inicio(request):
     })
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def alunos(request):
     return render(request, "alunos/lista.html", {"alunos": Aluno.objects.all()})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def aluno_novo(request):
     formulario = AlunoForm(request.POST or None)
     if request.method == "POST" and formulario.is_valid():
@@ -47,7 +34,7 @@ def aluno_novo(request):
     return render(request, "formulario.html", {"formulario": formulario, "titulo": "Cadastrar aluno", "voltar": "alunos"})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def aluno_editar(request, pk):
     aluno = get_object_or_404(Aluno, pk=pk)
     formulario = AlunoForm(request.POST or None, instance=aluno)
@@ -58,7 +45,7 @@ def aluno_editar(request, pk):
     return render(request, "formulario.html", {"formulario": formulario, "titulo": "Editar aluno", "voltar": "alunos"})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def aluno_excluir(request, pk):
     aluno = get_object_or_404(Aluno, pk=pk)
     if request.method == "POST":
@@ -71,12 +58,12 @@ def aluno_excluir(request, pk):
     return render(request, "confirmar.html", {"objeto": aluno, "voltar": "alunos"})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def livros(request):
     return render(request, "livros/lista.html", {"livros": Livro.objects.all()})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def livro_novo(request):
     formulario = LivroForm(request.POST or None)
     if request.method == "POST" and formulario.is_valid():
@@ -88,7 +75,7 @@ def livro_novo(request):
     return render(request, "formulario.html", {"formulario": formulario, "titulo": "Cadastrar livro", "voltar": "livros"})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def livro_editar(request, pk):
     livro = get_object_or_404(Livro, pk=pk)
     formulario = LivroForm(request.POST or None, instance=livro)
@@ -107,7 +94,7 @@ def livro_editar(request, pk):
     return render(request, "formulario.html", {"formulario": formulario, "titulo": "Editar livro", "voltar": "livros"})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def livro_excluir(request, pk):
     livro = get_object_or_404(Livro, pk=pk)
     if request.method == "POST":
@@ -120,13 +107,13 @@ def livro_excluir(request, pk):
     return render(request, "confirmar.html", {"objeto": livro, "voltar": "livros"})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def emprestimos_ativos(request):
     itens = Emprestimo.objects.filter(status=Emprestimo.Status.ATIVO).select_related("aluno", "livro")
     return render(request, "emprestimos/lista.html", {"itens": itens, "titulo": "Empréstimos ativos", "ativos": True, "hoje": timezone.localdate()})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def emprestimo_novo(request):
     formulario = EmprestimoForm(request.POST or None)
     if request.method == "POST" and formulario.is_valid():
@@ -144,10 +131,9 @@ def emprestimo_novo(request):
     return render(request, "formulario.html", {"formulario": formulario, "titulo": "Registrar empréstimo", "voltar": "emprestimos_ativos"})
 
 
-@equipe_required
+@staff_member_required(login_url="login")
+@require_POST
 def devolver(request, pk):
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
     with transaction.atomic():
         emprestimo = get_object_or_404(Emprestimo, pk=pk)
         alterados = Emprestimo.objects.filter(pk=pk, status=Emprestimo.Status.ATIVO).update(
@@ -165,7 +151,7 @@ def devolver(request, pk):
     return redirect("emprestimos_ativos")
 
 
-@equipe_required
+@staff_member_required(login_url="login")
 def historico(request):
     itens = Emprestimo.objects.select_related("aluno", "livro")
     return render(request, "emprestimos/lista.html", {"itens": itens, "titulo": "Histórico de empréstimos", "ativos": False, "hoje": timezone.localdate()})

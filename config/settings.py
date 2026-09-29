@@ -1,10 +1,9 @@
-import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "somente-desenvolvimento-local-troque-em-producao")
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if host.strip()]
+SECRET_KEY = "django-insecure-apenas-para-estudo-local"
+DEBUG = True
+ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "django.contrib.admin",

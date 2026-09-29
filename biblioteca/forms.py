@@ -22,15 +22,15 @@ class LivroForm(forms.ModelForm):
             return dados
         if total < 1:
             self.add_error("quantidade_total", "Informe pelo menos um exemplar.")
+
+        emprestados = 0
         if self.instance.pk:
-            anterior = Livro.objects.get(pk=self.instance.pk)
-            emprestados = anterior.quantidade_total - anterior.quantidade_disponivel
-            if total < emprestados:
-                self.add_error("quantidade_total", "O total não pode ser menor que os exemplares emprestados.")
-            else:
-                self.instance.quantidade_disponivel = total - emprestados
+            emprestados = self.instance.quantidade_total - self.instance.quantidade_disponivel
+        if total < emprestados:
+            self.add_error("quantidade_total", "O total não pode ser menor que os exemplares emprestados.")
         else:
-            self.instance.quantidade_disponivel = total
+            # O formulário não mostra o estoque disponível; ele acompanha a mudança no total.
+            self.instance.quantidade_disponivel = total - emprestados
         return dados
 
 
@@ -39,10 +39,6 @@ class EmprestimoForm(forms.ModelForm):
         model = Emprestimo
         fields = ["aluno", "livro", "data_prevista_devolucao"]
         widgets = {"data_prevista_devolucao": forms.DateInput(attrs={"type": "date"})}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["livro"].queryset = Livro.objects.filter(quantidade_disponivel__gt=0)
 
     def clean_data_prevista_devolucao(self):
         data = self.cleaned_data["data_prevista_devolucao"]

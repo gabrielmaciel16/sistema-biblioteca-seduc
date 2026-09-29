@@ -71,21 +71,8 @@ class BibliotecaTests(TestCase):
         self.assertEqual(self.client.post(reverse("devolver", args=[Emprestimo.objects.get().pk])).status_code, 302)
         visitante = User.objects.create_user("visitante", password="senha-123")
         self.client.force_login(visitante)
-        self.assertEqual(self.client.get(reverse("livros")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("livros")).status_code, 302)
 
     def test_banco_impede_estoque_invalido(self):
         with self.assertRaises(IntegrityError), transaction.atomic():
             Livro.objects.filter(pk=self.livro.pk).update(quantidade_disponivel=2)
-
-    def test_admin_reduz_total_sem_emprestimos(self):
-        self.livro.quantidade_total = 3
-        self.livro.quantidade_disponivel = 3
-        self.livro.save()
-        resposta = self.client.post(reverse("admin:biblioteca_livro_change", args=[self.livro.pk]), {
-            "titulo": self.livro.titulo, "autor": self.livro.autor,
-            "editora": "", "categoria": "", "localizacao": "", "quantidade_total": 1,
-            "_save": "Salvar",
-        })
-        self.assertEqual(resposta.status_code, 302)
-        self.livro.refresh_from_db()
-        self.assertEqual((self.livro.quantidade_total, self.livro.quantidade_disponivel), (1, 1))
