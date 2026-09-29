@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Alunos{% endblock %}
+{% block content %}
+<div class="titulo"><h1>Alunos</h1><a class="botao" href="{% url 'aluno_novo' %}">Cadastrar aluno</a></div>
+<div class="tabela"><table><thead><tr><th>Nome</th><th>Matrícula</th><th>Turma</th><th>Curso</th><th>Ações</th></tr></thead>
+<tbody>{% for aluno in alunos %}<tr><td>{{ aluno.nome }}</td><td>{{ aluno.matricula }}</td><td>{{ aluno.turma }}</td><td>{{ aluno.curso|default:'—' }}</td><td><a href="{% url 'aluno_editar' aluno.pk %}">Editar</a> · <a href="{% url 'aluno_excluir' aluno.pk %}">Excluir</a></td></tr>
+{% empty %}<tr><td colspan="5">Nenhum aluno cadastrado.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

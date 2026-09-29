@@ -1,116 +1,90 @@
-# Raiz — Sistema de Biblioteca Escolar (Django)
+# Sistema da biblioteca Multimeios
 
-Primeira estrutura Django para o projeto de gerenciamento de livros e empréstimos voltado inicialmente a escolas.
+Projeto de aprendizagem para o Multimeios da **EEEP Presidente Roosevelt**. Permite cadastrar alunos e livros, registrar empréstimos e devoluções e consultar o histórico. Um registro de livro representa um título/edição e informa a quantidade de exemplares. Não inclui importação automática do acervo antigo.
 
-## Stack
+## O que há no projeto
 
-- Python
-- Django 5.2
-- MySQL 8.0.11+ **ou** MariaDB 10.5+
-- HTML + CSS + JavaScript
-- Git/GitHub
-
-## Arquitetura
+Usamos Python, Django, HTML, CSS e **um banco SQLite** local. O Django cria e mantém as tabelas por meio das migrations. O administrador usa o sistema de usuários que já vem com o Django. O cadastro de alunos é independente do login: estudantes não precisam de senha para constar no catálogo de empréstimos.
 
 ```text
-HTML/CSS/JS -> Django -> ORM -> MySQL
+manage.py                 comandos do Django
+requirements.txt          dependências Python
+config/settings.py        configuração e banco SQLite
+config/urls.py            entrada das URLs e login
+biblioteca/models.py      tabelas Aluno, Livro e Emprestimo
+biblioteca/forms.py       formulários e validações
+biblioteca/views.py       páginas e regras de empréstimo/devolução
+biblioteca/urls.py        caminhos das páginas
+biblioteca/admin.py       administração do Django
+biblioteca/migrations/    versão inicial das tabelas
+templates/                páginas HTML
+static/css/style.css      aparência das páginas
 ```
 
-O navegador nunca acessa o banco diretamente.
+## Instalação passo a passo
 
-## Estrutura
+1. Instale **Python 3.10 ou superior** em [python.org](https://www.python.org/downloads/) e Git. No Windows, marque a opção de adicionar Python ao PATH. Confirme com `py --version` (Windows) ou `python3 --version` (macOS/Linux).
+2. Clone o projeto e entre na pasta:
 
-```text
-config/          configurações Django
-usuarios/        login, usuários e perfil de aluno
-escolas/         instituições
-livros/          catálogo
-emprestimos/     empréstimos/devoluções e regras de negócio
-templates/       HTML
-static/          CSS, JS e imagens
-database/        scripts locais e dumps antigos de referência
-docs/            documentação
+```bash
+git clone https://github.com/gabrielmaciel16/sistema-biblioteca-seduc.git
+cd sistema-biblioteca-seduc
 ```
 
-## 1. Pré-requisitos
+Se estiver estudando esta versão antes de ela ser integrada à `main`, execute `git switch refatoracao-versao-iniciante`.
 
-- Python compatível com Django 5.2.
-- MySQL 8.0.11+ ou MariaDB 10.5+.
-- Git.
-
-> Atenção: os dumps antigos enviados indicam MariaDB 10.4.32, que deve ser atualizado para usar Django 5.2.
-
-## 2. Ambiente virtual (Windows PowerShell)
+**Windows PowerShell:**
 
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-## 3. Variáveis de ambiente
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Edite `.env`. Nunca faça commit desse arquivo.
-
-## 4. Banco
-
-Use `database/create_database_dev.sql` para criar `raiz_db` e o usuário local do projeto. Troque a senha do exemplo.
-
-## 5. Migrations
-
-Como este scaffold começa com um usuário customizado, configure tudo **antes do primeiro `migrate`**. Depois rode:
-
-```powershell
-python manage.py makemigrations
+python -m pip install -r requirements.txt
 python manage.py migrate
-```
-
-## 6. Superusuário
-
-```powershell
 python manage.py createsuperuser
-```
-
-O login usa **e-mail + senha**.
-
-## 7. Testes
-
-```powershell
-python manage.py test
-```
-
-## 8. Executar localmente
-
-```powershell
 python manage.py runserver
 ```
 
-Abra `http://127.0.0.1:8000/entrar/`.
+**macOS/Linux:**
 
-## Autenticação
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
 
-- Senhas são tratadas pelo Django Auth; não são comparadas nem armazenadas manualmente.
-- Cadastro público cria somente contas de aluno.
-- Administradores/funcionários devem ser promovidos por um superusuário no `/admin/`.
-- O modelo de usuário é definido em `usuarios.User` e usa o e-mail como identificador.
+Abra **http://127.0.0.1:8000/** no navegador. Entre com o usuário e a senha criados no comando `createsuperuser`. Os dados ficam no arquivo local `db.sqlite3`, que não é enviado ao GitHub. Para parar o servidor, pressione `Ctrl+C`. Para voltar a trabalhar depois, ative `.venv` e rode `python manage.py runserver`.
 
-## Banco antigo
+Se você mudar um modelo, rode `python manage.py makemigrations` e `python manage.py migrate`, depois envie o arquivo de migration criado junto com o código. Verifique com `python manage.py check` e `python manage.py test`.
 
-Os SQL enviados foram preservados em `database/legacy/` para consulta. Eles não devem ser tratados como o esquema oficial do Django daqui em diante. O esquema oficial será `models.py` + migrations.
+## Como usar
 
-## Antes de produção
+1. Cadastre alunos e livros. Ao cadastrar um livro, a quantidade disponível começa igual à quantidade total.
+2. Clique em **Registrar empréstimo**, escolha aluno e livro e informe a data prevista.
+3. Na lista de empréstimos ativos, clique em **Devolver**. A data de devolução é registrada e um exemplar volta ao estoque.
+4. Consulte o histórico. Empréstimos ativos com prazo vencido aparecem como **Atrasado** na tela; continuam ativos até a devolução.
 
-- `DEBUG=False`
-- `SECRET_KEY` forte e privada
-- HTTPS
-- banco não exposto diretamente à internet
-- backups
-- permissões por escola
-- executar `python manage.py check --deploy`
-- usar servidor WSGI/ASGI de produção em vez de `runserver`
+Um aluno ou livro com empréstimos registrados não pode ser excluído, pois isso apagaria a referência do histórico. A edição do total de livros preserva quantos exemplares estão emprestados. Não cadastre empréstimos diretamente no banco: utilize as páginas do sistema para manter o estoque correto.
 
-Leia `docs/ARQUITETURA.md` e `docs/MIGRACAO_DO_REPOSITORIO_ATUAL.md` antes de integrar este scaffold à `main`.
+## Como estudar este projeto
+
+1. Leia `biblioteca/models.py`: cada classe representa uma tabela e as chaves ligam o empréstimo a aluno e livro.
+2. Leia `biblioteca/forms.py`: os formulários escolhem os campos e validam entradas.
+3. Leia `biblioteca/views.py`: cada função recebe uma requisição, consulta ou altera dados e entrega uma página ou redirecionamento. Veja `emprestimo_novo` e `devolver` para entender o estoque.
+4. Leia `biblioteca/urls.py` e `config/urls.py`: ligam endereços às funções.
+5. Abra `templates/`: `base.html` fornece o menu; cada página estende essa base.
+6. Leia `static/css/style.css`: contém somente a apresentação visual.
+
+Experimente criar um aluno e um livro de teste. Abra cada URL e encontre a função e o template correspondentes. Depois execute os testes em `biblioteca/tests.py`.
+
+## Banco antigo e futura migração
+
+Esta branch cria **um esquema novo** com SQLite e o usuário padrão do Django. As migrations antigas (`usuarios`, `livros`, `emprestimos`, `escolas`) e os scripts SQL dos três bancos anteriores não são compatíveis com a nova migration inicial. **Não execute esta versão sobre um banco antigo com dados esperando que os dados sejam convertidos automaticamente.** Os arquivos antigos permanecem no histórico da branch `main` e do Git; a documentação anterior indicava que os dumps fornecidos continham somente estrutura, mas confirme isso em qualquer instalação real antes de migrar. Faça backup, mapeie identificadores e relações, importe os dados em uma cópia e confira quantidades e empréstimos antes de trocar a instalação em uso.
+
+Para migrar **futuramente** para MySQL, primeiro instale um servidor compatível e um driver Python (`mysqlclient`), crie um banco vazio com `utf8mb4` e altere `DATABASES` em `config/settings.py` para `django.db.backends.mysql` com nome, usuário, senha, host e porta. Rode `python manage.py migrate` nesse banco novo. Isso cria as tabelas, mas **não transfere** automaticamente os dados do SQLite; planeje e teste a exportação/importação separadamente. Nunca coloque senhas no repositório.
+
+## Limites desta versão
+
+Ela foi feita para estudo e uso local inicial. Para colocar na internet, configure uma chave secreta privada (`DJANGO_SECRET_KEY`), `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, HTTPS, backups e um servidor de aplicação adequado. Não use `runserver` como servidor público. Crie usuários de equipe pelo admin e marque **Membro da equipe** (`is_staff`); não existe cadastro público de administradores.

@@ -1,30 +1,14 @@
-{% extends "base.html" %}
-{% block title %}Entrar | Raiz{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Entrar{% endblock %}
 {% block content %}
-<section class="auth-card">
-    <h1>Raiz</h1>
-    <div class="auth-tabs">
-        <span class="active">Entrar</span>
-        <a href="{% url 'usuarios:cadastro' %}">Cadastrar</a>
-    </div>
-
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-            <div class="field-error">E-mail ou senha inválidos.</div>
-        {% endif %}
-
-        <label for="{{ form.username.id_for_label }}">E-mail</label>
-        {{ form.username }}
-        {% for error in form.username.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
-
-        <label for="{{ form.password.id_for_label }}">Senha</label>
-        {{ form.password }}
-        {% for error in form.password.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
-
-        <button type="submit" class="primary-button">Entrar</button>
-    </form>
-
-    <p class="auth-help">Ainda não tem conta? <a href="{% url 'usuarios:cadastro' %}">Cadastre-se</a></p>
+<section class="painel estreito">
+  <h1>Entrar no sistema</h1>
+  <p>Use o usuário administrador criado no terminal.</p>
+  <form method="post">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="erro">{{ form.non_field_errors }}</div>{% endif %}
+    <label for="id_username">Usuário</label>{{ form.username }}
+    <label for="id_password">Senha</label>{{ form.password }}
+    <button type="submit">Entrar</button>
+  </form>
 </section>
 {% endblock %}
