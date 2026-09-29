@@ -1,35 +1,31 @@
 {% load static %}
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Raiz{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    {% block extra_head %}{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Biblioteca{% endblock %} · Multimeios</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header class="topbar">
-        <a class="brand" href="{% url 'usuarios:dashboard' %}">Raiz</a>
-        {% if request.user.is_authenticated %}
-            <nav>
-                <a href="{% url 'livros:lista' %}">Livros</a>
-                <a href="{% url 'emprestimos:lista' %}">Empréstimos</a>
-                <form method="post" action="{% url 'usuarios:logout' %}" class="inline-form">
-                    {% csrf_token %}
-                    <button type="submit" class="link-button">Sair</button>
-                </form>
-            </nav>
-        {% endif %}
-    </header>
-
-    <main class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
+  <header>
+    <div class="container cabecalho">
+      <a class="marca" href="{% url 'inicio' %}">Multimeios <small>EEEP Presidente Roosevelt</small></a>
+      {% if user.is_authenticated %}
+      <nav aria-label="Principal">
+        <a href="{% url 'inicio' %}">Início</a>
+        <a href="{% url 'alunos' %}">Alunos</a>
+        <a href="{% url 'livros' %}">Livros</a>
+        <a href="{% url 'emprestimos_ativos' %}">Empréstimos</a>
+        <a href="{% url 'historico' %}">Histórico</a>
+      </nav>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="texto" type="submit">Sair</button></form>
+      {% endif %}
+    </div>
+  </header>
+  <main class="container">
+    {% if messages %}<div aria-live="polite">{% for message in messages %}<p class="aviso {{ message.tags }}">{{ message }}</p>{% endfor %}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>

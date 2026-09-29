@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar exclusão{% endblock %}
+{% block content %}
+<section class="painel estreito">
+  <h1>Excluir cadastro?</h1>
+  <p>{{ objeto }}</p>
+  <p>Cadastros usados em empréstimos não podem ser excluídos para preservar o histórico.</p>
+  <form method="post">{% csrf_token %}<div class="acoes"><button class="perigo" type="submit">Excluir</button><a href="{% url voltar %}">Cancelar</a></div></form>
+</section>
+{% endblock %}

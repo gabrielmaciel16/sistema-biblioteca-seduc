@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Início{% endblock %}
+{% block content %}
+<h1>Biblioteca escolar</h1>
+<p>Cadastre estudantes e livros, registre empréstimos e acompanhe as devoluções.</p>
+<div class="cards">
+  <a class="painel" href="{% url 'alunos' %}"><strong>{{ alunos }}</strong><span>Alunos cadastrados</span></a>
+  <a class="painel" href="{% url 'livros' %}"><strong>{{ livros }}</strong><span>Títulos no catálogo</span></a>
+  <a class="painel" href="{% url 'emprestimos_ativos' %}"><strong>{{ ativos }}</strong><span>Empréstimos ativos</span></a>
+</div>
+{% endblock %}
